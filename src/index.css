@@ -1,0 +1,191 @@
+@import 'tailwindcss';
+@plugin "@tailwindcss/typography";
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+
+  /* Core Theme Variables (Nord) */
+  --bg-primary: #2e3440; /* Background utama      — Nord0  */
+  --bg-secondary: #242933; /* Sidebar/Header        — Nord0 gelap */
+  --bg-preview: #2e3440; /* Latar preview khusus  — Nord0  */
+  --toolbar-bg: #3b4252; /* Toolbar latar         — Nord1  */
+  --text-primary: #eceff4; /* Teks utama            — Nord6  */
+  --text-secondary: #616e88; /* Teks redup            — Nord3+ */
+  --accent: #88c0d0; /* Warna aksen           — Nord8  */
+  --accent-hover: #81a1c1; /* Aksen hover           — Nord9  */
+  --border-color: #434c5e; /* Warna border          — Nord2  */
+  --selection-bg: #4c566a; /* Warna seleksi teks    — Nord3  */
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[data-theme='retro'] {
+  --bg-primary: #f4ecd8;
+  --bg-secondary: #eaddc0;
+  --bg-preview: #fdf6e3;
+  --toolbar-bg: #e5d5b0;
+  --text-primary: #433422;
+  --text-secondary: #705d45;
+  --accent: #92400e;
+  --accent-hover: #78350f;
+  --border-color: #d1c1a1;
+  --selection-bg: #ebdbb2;
+  color-scheme: light;
+}
+
+[data-theme='high-contrast'] {
+  --bg-primary: #000000;
+  --bg-secondary: #000000;
+  --bg-preview: #000000;
+  --toolbar-bg: #111111;
+  --text-primary: #ffffff;
+  --text-secondary: #cccccc;
+  --accent: #ffff00;
+  --accent-hover: #e5e500;
+  --border-color: #ffffff;
+  --selection-bg: #ffffff;
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+
+/* Utilitas font mono untuk editor/code */
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Seleksi Teks */
+::selection {
+  background-color: var(--selection-bg);
+  color: var(--bg-primary);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Override prose colors based on theme variables */
+.prose {
+  --tw-prose-body: var(--text-primary);
+  --tw-prose-headings: var(--text-primary);
+  --tw-prose-links: var(--accent);
+  --tw-prose-bold: var(--text-primary);
+  --tw-prose-counters: var(--text-secondary);
+  --tw-prose-bullets: var(--text-secondary);
+  --tw-prose-hr: var(--border-color);
+  --tw-prose-quotes: var(--text-primary);
+  --tw-prose-quote-borders: var(--accent);
+  --tw-prose-captions: var(--text-secondary);
+  --tw-prose-code: var(--text-primary);
+  --tw-prose-pre-code: var(--text-primary);
+  --tw-prose-pre-bg: var(--bg-secondary);
+  --tw-prose-th-borders: var(--border-color);
+  --tw-prose-td-borders: var(--border-color);
+}
+
+/* PrismJS Variable-based Highlighting */
+code[class*='language-'],
+pre[class*='language-'] {
+  color: var(--text-primary);
+  background: none;
+  font-family: 'JetBrains Mono', monospace;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.5;
+  tab-size: 4;
+  hyphens: none;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.token.punctuation {
+  color: #81a1c1; /* Nord9 */
+}
+
+.token.namespace {
+  opacity: 0.7;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  color: #81a1c1; /* Nord9 */
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: #a3be8c; /* Nord14 - Hijau */
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: #81a1c1; /* Nord9 */
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #81a1c1; /* Nord9 - Biru */
+}
+
+.token.function,
+.token.class-name {
+  color: #88c0d0; /* Nord8 - Cyan */
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  color: #ebcb8b; /* Nord13 - Kuning */
+}
