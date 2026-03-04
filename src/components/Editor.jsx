@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'preact/hooks';
 import { EditorView } from '@codemirror/view';
 import { EditorState } from '@codemirror/state';
 import { markdown } from '@codemirror/lang-markdown';
+import { syntaxHighlighting, HighlightStyle } from '@codemirror/language';
+import { tags as t } from '@lezer/highlight';
 import { basicSetup } from 'codemirror';
 
 /**
@@ -41,6 +43,26 @@ const nordTheme = EditorView.theme(
 );
 
 /**
+ * HighlightStyle kustom untuk menyelaraskan warna token editor dengan variabel CSS.
+ */
+const nordHighlightStyle = HighlightStyle.define([
+  { tag: t.comment, color: 'var(--code-comment)', fontStyle: 'italic' },
+  { tag: t.variableName, color: 'var(--code-variable)' },
+  { tag: [t.string, t.special(t.brace)], color: 'var(--code-string)' },
+  { tag: t.number, color: 'var(--code-number)' },
+  { tag: t.bool, color: 'var(--code-number)' },
+  { tag: t.null, color: 'var(--code-number)' },
+  { tag: t.keyword, color: 'var(--code-keyword)' },
+  { tag: t.operator, color: 'var(--code-operator)' },
+  { tag: [t.className, t.typeName], color: 'var(--code-function)' },
+  { tag: [t.function(t.variableName), t.propertyName], color: 'var(--code-function)' },
+  { tag: t.punctuation, color: 'var(--code-punctuation)' },
+  { tag: t.heading1, fontWeight: 'bold', fontSize: '1.4em', color: 'var(--accent)' },
+  { tag: t.heading2, fontWeight: 'bold', fontSize: '1.2em', color: 'var(--accent)' },
+  { tag: t.heading3, fontWeight: 'bold', fontSize: '1.1em', color: 'var(--accent)' },
+]);
+
+/**
  * Komponen Editor menggunakan CodeMirror 6.
  * @param {Object} props
  * @param {string} props.value - Konten markdown saat ini.
@@ -60,6 +82,7 @@ export default function Editor({ value, onChange }) {
         basicSetup,
         markdown(),
         nordTheme,
+        syntaxHighlighting(nordHighlightStyle),
         EditorView.lineWrapping,
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'preact/hooks';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'preact/hooks';
 import Editor from './components/Editor';
 import Preview from './components/Preview';
 import ThemeSwitcher from './components/ThemeSwitcher';
@@ -16,10 +16,47 @@ export default function App() {
   const [content, setContent] = useLocalStorage('jm-draft', '# Just Markdown\n\nSelamat datang di Just Markdown!');
   const [theme, setTheme] = useLocalStorage('jm-theme', 'dark');
   const [isZenMode, setIsZenMode] = useState(false);
+  const [editorWidth, setEditorWidth] = useLocalStorage('jm-editor-width', 50);
 
   const [debouncedContent, setDebouncedContent] = useState(content);
   const [activeTab, setActiveTab] = useState('edit');
   const [copyStatus, setCopyStatus] = useState('Copy HTML');
+  const isResizing = useRef(false);
+
+  // Logic Resizing
+  const startResizing = useCallback(() => {
+    isResizing.current = true;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  }, []);
+
+  const stopResizing = useCallback(() => {
+    if (!isResizing.current) return;
+    isResizing.current = false;
+    document.body.style.cursor = 'default';
+    document.body.style.userSelect = 'auto';
+  }, []);
+
+  const resize = useCallback(
+    (e) => {
+      if (!isResizing.current) return;
+      const newWidth = (e.clientX / window.innerWidth) * 100;
+      // Batasi lebar minimal 20% dan maksimal 80%
+      if (newWidth > 15 && newWidth < 85) {
+        setEditorWidth(newWidth);
+      }
+    },
+    [setEditorWidth],
+  );
+
+  useEffect(() => {
+    window.addEventListener('mousemove', resize);
+    window.addEventListener('mouseup', stopResizing);
+    return () => {
+      window.removeEventListener('mousemove', resize);
+      window.removeEventListener('mouseup', stopResizing);
+    };
+  }, [resize, stopResizing]);
 
   // Sinkronisasi atribut data-theme ke elemen root
   useEffect(() => {
@@ -76,7 +113,7 @@ export default function App() {
   );
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden transition-colors duration-300" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+    <div className="flex flex-col h-screen overflow-hidden transition-colors duration-300 font-sans" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
       {/* Header / Toolbar */}
       <header className="flex items-center justify-between px-4 py-2 border-b shadow-sm z-10 transition-colors duration-300" style={{ backgroundColor: 'var(--bg-secondary)', borderColor: 'var(--border-color)' }}>
         <div className="flex items-center gap-2">
@@ -130,15 +167,18 @@ export default function App() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex overflow-hidden relative">
+      <main className="flex-1 flex overflow-hidden relative" style={{ '--editor-width': isZenMode ? '100%' : `${editorWidth}%` }}>
         {/* Editor Pane */}
-        <div className={`h-full border-r border-neutral-800 transition-all duration-300 ease-in-out ${activeTab === 'edit' ? 'flex' : 'hidden'} ${isZenMode ? 'w-full px-[5%] sm:px-[15%] lg:px-[25%] bg-primary' : 'md:w-1/2 flex'}`}>
+        <div className={`h-full border-r border-neutral-800 transition-all duration-75 ease-out editor-pane ${activeTab === 'edit' ? 'flex' : 'hidden'} ${isZenMode ? 'px-[5%] sm:px-[15%] lg:px-[25%] bg-primary' : 'md:flex'}`}>
           <Editor value={content} onChange={setContent} />
         </div>
 
+        {/* Resizer - Hanya tampil di desktop dan bukan Zen Mode */}
+        {!isZenMode && <div className="hidden md:block resizer-h" onMouseDown={startResizing} />}
+
         {/* Preview Pane */}
         {!isZenMode && (
-          <div className={`h-full transition-all duration-300 ease-in-out ${activeTab === 'preview' ? 'flex' : 'hidden'} md:flex md:w-1/2`}>
+          <div className={`h-full transition-all duration-75 ease-out preview-pane ${activeTab === 'preview' ? 'flex' : 'hidden'} md:flex overflow-hidden`}>
             <Preview content={debouncedContent} />
           </div>
         )}

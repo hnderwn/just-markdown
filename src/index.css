@@ -20,6 +20,16 @@
   --border-color: #434c5e; /* Warna border          — Nord2  */
   --selection-bg: #4c566a; /* Warna seleksi teks    — Nord3  */
 
+  /* Code Syntax Variables (Nord) */
+  --code-comment: #616e88; /* Nord3 */
+  --code-punctuation: #81a1c1; /* Nord9 */
+  --code-keyword: #81a1c1; /* Nord9 */
+  --code-string: #a3be8c; /* Nord14 */
+  --code-function: #88c0d0; /* Nord8 */
+  --code-number: #b48ead; /* Nord15 (Ungu) */
+  --code-variable: #ebcb8b; /* Nord13 */
+  --code-operator: #81a1c1; /* Nord9 */
+
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -37,6 +47,17 @@
   --accent-hover: #78350f;
   --border-color: #d1c1a1;
   --selection-bg: #ebdbb2;
+
+  /* Code Syntax override for Retro */
+  --code-comment: #a89984;
+  --code-punctuation: #7c6f64;
+  --code-keyword: #9d0006;
+  --code-string: #79740e;
+  --code-function: #b57614;
+  --code-number: #8f3f71;
+  --code-variable: #af3a03;
+  --code-operator: #076678;
+
   color-scheme: light;
 }
 
@@ -51,6 +72,17 @@
   --accent-hover: #e5e500;
   --border-color: #ffffff;
   --selection-bg: #ffffff;
+
+  /* Code Syntax override for High Contrast */
+  --code-comment: #888888;
+  --code-punctuation: #ffffff;
+  --code-keyword: #ffff00;
+  --code-string: #00ff00;
+  --code-function: #00ffff;
+  --code-number: #ff00ff;
+  --code-variable: #ffffff;
+  --code-operator: #ffffff;
+
   color-scheme: dark;
 }
 
@@ -60,6 +92,7 @@ body {
   min-height: 100vh;
   background-color: var(--bg-primary);
   color: var(--text-primary);
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   transition:
     background-color 0.3s,
     color 0.3s;
@@ -97,6 +130,7 @@ body {
 
 /* Override prose colors based on theme variables */
 .prose {
+  max-width: none !important;
   --tw-prose-body: var(--text-primary);
   --tw-prose-headings: var(--text-primary);
   --tw-prose-links: var(--accent);
@@ -114,11 +148,55 @@ body {
   --tw-prose-td-borders: var(--border-color);
 }
 
+/* Split Resizer */
+.resizer-h {
+  width: 4px;
+  cursor: col-resize;
+  background-color: var(--border-color);
+  transition:
+    background-color 0.2s,
+    width 0.2s;
+  z-index: 20;
+  position: relative;
+}
+
+.resizer-h::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -4px;
+  right: -4px;
+  cursor: col-resize;
+}
+
+.resizer-h:hover,
+.resizer-h:active {
+  background-color: var(--accent);
+  width: 4px;
+}
+
+/* Responsive Pane Layout */
+.editor-pane,
+.preview-pane {
+  width: 100%; /* Default mobile */
+}
+
+@media (min-width: 768px) {
+  .editor-pane {
+    width: var(--editor-width, 50%);
+    flex-shrink: 0;
+  }
+  .preview-pane {
+    flex: 1;
+    min-width: 0; /* Mencegah overflow flex item */
+  }
+}
+
 /* PrismJS Variable-based Highlighting */
 code[class*='language-'],
 pre[class*='language-'] {
   color: var(--text-primary);
-  background: none;
   font-family: 'JetBrains Mono', monospace;
   text-align: left;
   white-space: pre;
@@ -134,12 +212,12 @@ pre[class*='language-'] {
 .token.prolog,
 .token.doctype,
 .token.cdata {
-  color: var(--text-secondary);
+  color: var(--code-comment);
   font-style: italic;
 }
 
 .token.punctuation {
-  color: #81a1c1; /* Nord9 */
+  color: var(--code-punctuation);
 }
 
 .token.namespace {
@@ -153,7 +231,7 @@ pre[class*='language-'] {
 .token.constant,
 .token.symbol,
 .token.deleted {
-  color: #81a1c1; /* Nord9 */
+  color: var(--code-number);
 }
 
 .token.selector,
@@ -162,7 +240,7 @@ pre[class*='language-'] {
 .token.char,
 .token.builtin,
 .token.inserted {
-  color: #a3be8c; /* Nord14 - Hijau */
+  color: var(--code-string);
 }
 
 .token.operator,
@@ -170,22 +248,22 @@ pre[class*='language-'] {
 .token.url,
 .language-css .token.string,
 .style .token.string {
-  color: #81a1c1; /* Nord9 */
+  color: var(--code-operator);
 }
 
 .token.atrule,
 .token.attr-value,
 .token.keyword {
-  color: #81a1c1; /* Nord9 - Biru */
+  color: var(--code-keyword);
 }
 
 .token.function,
 .token.class-name {
-  color: #88c0d0; /* Nord8 - Cyan */
+  color: var(--code-function);
 }
 
 .token.regex,
 .token.important,
 .token.variable {
-  color: #ebcb8b; /* Nord13 - Kuning */
+  color: var(--code-variable);
 }
