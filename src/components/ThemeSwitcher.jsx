@@ -5,6 +5,9 @@
 export default function ThemeSwitcher({ theme: currentTheme, setTheme }) {
   const themes = [
     { id: 'dark', label: 'Dark', color: '#88c0d0' },
+    { id: 'light', label: 'Light', color: '#5e81ac' },
+    { id: 'dracula', label: 'Dracula', color: '#ff79c6' },
+    { id: 'forest', label: 'Forest', color: '#81c784' },
     { id: 'retro', label: 'Retro', color: '#92400e' },
     { id: 'high-contrast', label: 'Contrast', color: '#ffffff' },
   ];

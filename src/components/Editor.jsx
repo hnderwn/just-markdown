@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'preact/hooks';
-import { EditorView } from '@codemirror/view';
+import { EditorView, keymap } from '@codemirror/view';
+import { openSearchPanel } from '@codemirror/search';
 import { EditorState } from '@codemirror/state';
 import { markdown } from '@codemirror/lang-markdown';
 import { syntaxHighlighting, HighlightStyle } from '@codemirror/language';
@@ -84,6 +85,12 @@ export default function Editor({ value, onChange, onScroll, onEditorMount }) {
         nordTheme,
         syntaxHighlighting(nordHighlightStyle),
         EditorView.lineWrapping,
+        keymap.of([
+          {
+            key: 'Mod-Shift-f',
+            run: openSearchPanel,
+          },
+        ]),
         EditorView.updateListener.of((update) => {
           if (update.docChanged) {
             onChange(update.state.doc.toString());

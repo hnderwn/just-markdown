@@ -20,6 +20,8 @@ export default function Header({
   handleClear,
   showMobileMenu,
   setShowMobileMenu,
+  fileName,
+  setFileName,
 }) {
   const menuRef = useRef(null);
 
@@ -61,6 +63,19 @@ export default function Header({
         <ThemeSwitcher theme={theme} setTheme={setTheme} />
 
         <div className="hidden md:flex items-center gap-2">
+          {/* Filename Input */}
+          <div className="flex items-center gap-1.5 mr-2">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-(--text-secondary)">File:</span>
+            <input
+              type="text"
+              value={fileName}
+              onChange={(e) => setFileName(e.target.value)}
+              placeholder="Filename..."
+              className="px-2.5 py-1 text-[12px] bg-(--bg-primary) border border-(--border-color) rounded-md text-(--text-primary) w-32 focus:outline-none focus:border-(--accent) focus:ring-1 focus:ring-(--accent) transition-all font-mono"
+              title="Nama file ekspor (tanpa ekstensi)"
+            />
+          </div>
+
           {/* Spacing Selector (Heading & HR only) */}
           <div className="flex bg-(--bg-primary) rounded-lg p-0.5 border border-(--border-color) mr-2">
             {[
@@ -78,23 +93,23 @@ export default function Header({
             ))}
           </div>
 
-          <button onClick={() => setIsZenMode(!isZenMode)} className="rounded-lg transition border active:scale-95 shadow-sm" style={btnStyle(isZenMode, 'large')}>
+          <button onClick={() => setIsZenMode(!isZenMode)} className="rounded-lg transition border active:scale-95 shadow-sm" style={btnStyle(isZenMode, 'large')} title="Toggle Mode Zen (Ctrl + E)">
             Zen Mode
           </button>
-          <button onClick={() => setShowHeadingBorder(!showHeadingBorder)} className="rounded-lg transition border active:scale-95 shadow-sm" style={btnStyle(showHeadingBorder, 'large')}>
+          <button onClick={() => setShowHeadingBorder(!showHeadingBorder)} className="rounded-lg transition border active:scale-95 shadow-sm" style={btnStyle(showHeadingBorder, 'large')} title="Toggle Garis Batas Heading (Ctrl + B)">
             Border
           </button>
-          <button onClick={handleCopyHTML} className="rounded-lg transition border active:scale-95 shadow-sm" style={btnStyle(false, 'large')}>
+          <button onClick={handleCopyHTML} className="rounded-lg transition border active:scale-95 shadow-sm" style={btnStyle(false, 'large')} title="Salin HTML ke Clipboard (Ctrl + Shift + C)">
             {copyStatus}
           </button>
           <div className="h-4 w-px bg-(--border-color) mx-1" />
-          <button onClick={handleDownload} className="px-3 py-2 rounded-lg transition border active:scale-95 shadow-sm" style={btnStyle(false, 'large')}>
+          <button onClick={handleDownload} className="px-3 py-2 rounded-lg transition border active:scale-95 shadow-sm" style={btnStyle(false, 'large')} title="Unduh File Markdown (Ctrl + S)">
             MD
           </button>
-          <button onClick={handleDownloadHTML} className="px-3 py-2 rounded-lg transition border active:scale-95 shadow-sm" style={btnStyle(false, 'large')}>
+          <button onClick={handleDownloadHTML} className="px-3 py-2 rounded-lg transition border active:scale-95 shadow-sm" style={btnStyle(false, 'large')} title="Unduh File HTML (Ctrl + Alt + S)">
             HTML
           </button>
-          <button onClick={handleClear} className="rounded-lg transition border border-red-900/30 hover:bg-red-900/40 text-red-100 cursor-pointer px-4 py-2 text-[12px] active:scale-95 shadow-sm ml-2 bg-red-900/40">
+          <button onClick={handleClear} className="rounded-lg transition border border-red-900/30 hover:bg-red-900/40 text-red-100 cursor-pointer px-4 py-2 text-[12px] active:scale-95 shadow-sm ml-2 bg-red-900/40" title="Bersihkan Editor">
             Clear
           </button>
         </div>

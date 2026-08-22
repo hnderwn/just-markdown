@@ -3,6 +3,7 @@ import Editor from './components/Editor';
 import Preview from './components/Preview';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import ShortcutsModal from './components/ShortcutsModal';
 import useLocalStorage from './hooks/useLocalStorage';
 import { downloadMarkdown, downloadHTML, copyToClipboard, calculateReadingTime } from './utils/exportUtils';
 import { renderMarkdown } from './utils/markdownParser';
@@ -21,7 +22,9 @@ export default function App() {
   const [editorWidth, setEditorWidth] = useLocalStorage('jm-editor-width', 50);
   const [showHeadingBorder, setShowHeadingBorder] = useLocalStorage('jm-heading-border', false);
   const [spacing, setSpacing] = useLocalStorage('jm-spacing', 'loose');
+  const [fileName, setFileName] = useLocalStorage('jm-filename', 'just-markdown');
 
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [debouncedContent, setDebouncedContent] = useState(content);
   const [activeTab, setActiveTab] = useState('edit');
   const [copyStatus, setCopyStatus] = useState('Copy HTML');
@@ -30,6 +33,8 @@ export default function App() {
   const editorScrollDOM = useRef(null);
   const previewScrollDOM = useRef(null);
   const isSyncing = useRef(false);
+  const activeScroller = useRef(null);
+  const scrollTimeout = useRef(null);
 
   // Logic Resizing
   const startResizing = useCallback(() => {
@@ -90,14 +95,14 @@ export default function App() {
   }, [setContent]);
 
   const handleDownload = useCallback(() => {
-    downloadMarkdown(content);
-  }, [content]);
+    downloadMarkdown(content, `${fileName}.md`);
+  }, [content, fileName]);
 
   const handleDownloadHTML = useCallback(() => {
     const rawHTML = renderMarkdown(content || '');
     const sanitized = DOMPurify.sanitize(rawHTML);
-    downloadHTML(sanitized);
-  }, [content]);
+    downloadHTML(sanitized, `${fileName}.html`);
+  }, [content, fileName]);
 
   const handleCopyHTML = useCallback(async () => {
     try {
@@ -113,6 +118,37 @@ export default function App() {
     }
   }, [content]);
 
+  // Listener keyboard shortcut global
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const modKey = isMac ? e.metaKey : e.ctrlKey;
+
+      if (modKey) {
+        if (e.key.toLowerCase() === 's') {
+          e.preventDefault();
+          if (e.altKey) {
+            handleDownloadHTML();
+          } else {
+            handleDownload();
+          }
+        } else if (e.key.toLowerCase() === 'e') {
+          e.preventDefault();
+          setIsZenMode((prev) => !prev);
+        } else if (e.key.toLowerCase() === 'b') {
+          e.preventDefault();
+          setShowHeadingBorder((prev) => !prev);
+        } else if (e.key.toLowerCase() === 'c' && e.shiftKey) {
+          e.preventDefault();
+          handleCopyHTML();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleDownload, handleDownloadHTML, handleCopyHTML]);
+
   const stats = useMemo(
     () => ({
       chars: content.length,
@@ -122,28 +158,31 @@ export default function App() {
     [content],
   );
 
-  // Sync Scroll Logic (Optimized for smoothness)
+  // Sync Scroll Logic (Optimized for smoothness & smooth behavior)
   const syncScroll = useCallback(
     (source, target) => {
-      if (!source || !target || isSyncing.current || isZenMode) return;
+      if (!source || !target || isZenMode) return;
 
-      isSyncing.current = true;
+      // Cegah loop feedback dengan mencatat scroller aktif
+      if (activeScroller.current && activeScroller.current !== source) return;
 
-      // Gunakan requestAnimationFrame untuk pergerakan yang mulus (60fps)
-      requestAnimationFrame(() => {
-        const scrollRatio = source.scrollTop / (source.scrollHeight - source.clientHeight);
-        const targetPos = scrollRatio * (target.scrollHeight - target.clientHeight);
+      activeScroller.current = source;
 
-        // Hanya update jika ada perubahan signifikan untuk performa
-        if (Math.abs(target.scrollTop - targetPos) > 1) {
-          target.scrollTop = targetPos;
-        }
+      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+      scrollTimeout.current = setTimeout(() => {
+        activeScroller.current = null;
+      }, 250); // 250ms kelonggaran animasi smooth scroll native
 
-        // Lepas lock di frame berikutnya
-        requestAnimationFrame(() => {
-          isSyncing.current = false;
+      const scrollRatio = source.scrollTop / (source.scrollHeight - source.clientHeight);
+      const targetPos = scrollRatio * (target.scrollHeight - target.clientHeight);
+
+      // Scroll target dengan perilaku mulus (smooth behavior)
+      if (Math.abs(target.scrollTop - targetPos) > 1) {
+        target.scrollTo({
+          top: targetPos,
+          behavior: 'smooth',
         });
-      });
+      }
     },
     [isZenMode],
   );
@@ -183,6 +222,8 @@ export default function App() {
         handleClear={handleClear}
         showMobileMenu={showMobileMenu}
         setShowMobileMenu={setShowMobileMenu}
+        fileName={fileName}
+        setFileName={setFileName}
       />
 
       {/* Main Area */}
@@ -203,7 +244,9 @@ export default function App() {
         )}
       </main>
 
-      <Footer stats={stats} className="shrink-0" />
+      <Footer stats={stats} className="shrink-0" onOpenShortcuts={() => setIsShortcutsOpen(true)} />
+
+      <ShortcutsModal isOpen={isShortcutsOpen} onClose={() => setIsShortcutsOpen(false)} />
     </div>
   );
 }
